@@ -1,0 +1,1 @@
+import{D as e,i as t}from"./button-BBXuphLb.js";var n=e();function r({className:e,children:r}){return(0,n.jsx)(`span`,{className:t(`inline-flex items-center gap-1.5 rounded-full bg-primary/8 px-2.5 py-1 text-2xs font-medium uppercase tracking-caps text-primary`,e),children:r})}export{r as t};

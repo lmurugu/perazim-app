@@ -1,0 +1,36 @@
+{
+  "url": "http://127.0.0.1:8080/",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "Perazim",
+      "hasCanvas": false,
+      "bodyTextLen": 1441,
+      "bodyTextHash": "a76663775641ab688d9bcd360d7fd72d47ff270f34dcd4e544239d7e0966ca62",
+      "bodyTextPrefix": "Perazim MISSION CHURCH Home Sermons Worship Fellowship Perazim M",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "Perazim",
+      "hasCanvas": false,
+      "bodyTextLen": 1369,
+      "bodyTextHash": "0a050da80db834c39f22e539a867d79c0c5179c17a59547ecae6bf8e34a8521c",
+      "bodyTextPrefix": "Central Campus · Embu 450 XP Good morning Welcome back, Disciple",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/app-builder-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/app-builder-preview.json"
+}
