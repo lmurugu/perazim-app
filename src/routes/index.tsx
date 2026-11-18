@@ -15,7 +15,8 @@ import { GiveSheet, PassageSheet, PrayerSheet, ReflectSheet } from "@/components
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { DEVOTIONS, EVENTS, QUEST, VERSE } from "@/lib/content";
+import { DEVOTIONS, QUEST, VERSE } from "@/lib/content";
+import { useContent } from "@/lib/feed/use-content";
 import { useAppStore } from "@/lib/store";
 import { greetingForHour, todayKey } from "@/lib/utils";
 
@@ -32,6 +33,9 @@ function Home() {
   const markPrayed = useAppStore((s) => s.markPrayed);
   const questDate = useAppStore((s) => s.questDate);
   const completeQuest = useAppStore((s) => s.completeQuest);
+  const campusId = useAppStore((s) => s.campusId);
+  const content = useContent(campusId);
+  const verse = content.verse ?? { ref: VERSE.ref, text: VERSE.text };
 
   const [hour, setHour] = useState(12);
   const [reflect, setReflect] = useState(false);
@@ -131,12 +135,12 @@ function Home() {
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-ink/20" />
           <Badge className="absolute left-4 top-4 bg-ink/70 text-ink-fg">
             <BookOpen className="size-3" />
-            Verse of the day · {VERSE.ref}
+            Verse of the day · {verse.ref}
           </Badge>
         </div>
         <div className="p-5 pt-2">
           <blockquote className="font-display text-2xl font-medium italic leading-snug">
-            “{VERSE.text}”
+            “{verse.text}”
           </blockquote>
           <div className="mt-5 grid grid-cols-3 gap-2">
             <Button
@@ -161,7 +165,7 @@ function Home() {
               variant="secondary"
               className="bg-ink-fg/8 text-ink-fg shadow-none hover:bg-ink-fg/14"
               onClick={async () => {
-                const payload = `“${VERSE.text}” — ${VERSE.ref}`;
+                const payload = `“${verse.text}” — ${verse.ref}`;
                 try {
                   await navigator.clipboard.writeText(payload);
                   toast("Verse copied");
@@ -237,7 +241,12 @@ function Home() {
           </Link>
         </div>
         <ul className="grid gap-2 sm:grid-cols-2">
-          {EVENTS.slice(0, 4).map((e) => (
+          {content.events.length === 0 && (
+            <li className="rounded-2xl bg-surface px-4 py-3.5 text-sm text-muted shadow-card">
+              Upcoming gatherings will be listed here.
+            </li>
+          )}
+          {content.events.slice(0, 4).map((e) => (
             <li key={e.id} className="rounded-2xl bg-surface px-4 py-3.5 shadow-card">
               <p className="font-medium">{e.title}</p>
               <p className="mt-0.5 text-sm text-muted">

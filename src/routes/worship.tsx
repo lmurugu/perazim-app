@@ -5,7 +5,8 @@ import { Lyrics } from "@/components/lyrics";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { HYMNS, type Hymn } from "@/lib/content";
+import type { Hymn } from "@/lib/feed";
+import { useContent } from "@/lib/feed/use-content";
 import { useAppStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -15,25 +16,26 @@ export const Route = createFileRoute("/worship")({
 
 function Worship() {
   const [query, setQuery] = useState("");
-  const [openId, setOpenId] = useState<string | null>("amazing-grace");
+  const [openId, setOpenId] = useState<string | null>(null);
   const favorites = useAppStore((s) => s.favoriteHymns);
+  const { hymns } = useContent();
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = q
-      ? HYMNS.filter(
+      ? hymns.filter(
           (h) =>
             h.title.toLowerCase().includes(q) ||
             h.authors.toLowerCase().includes(q) ||
             h.tags.some((t) => t.includes(q)),
         )
-      : HYMNS;
+      : hymns;
     return [...filtered].sort((a, b) => {
       const af = favorites.includes(a.id) ? 0 : 1;
       const bf = favorites.includes(b.id) ? 0 : 1;
       return af - bf;
     });
-  }, [query, favorites]);
+  }, [query, favorites, hymns]);
 
   return (
     <div className="stagger-in mx-auto max-w-3xl space-y-5">
@@ -136,7 +138,7 @@ function HymnCard({
       {open && (
         <div className="border-t border-border px-4 pb-5 pt-3">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge>{hymn.publicDomain ? "Public domain" : "CCLI excerpt"}</Badge>
+            {hymn.publicDomain && <Badge>Public domain</Badge>}
             {hymn.tags.map((t) => (
               <Badge key={t} className="bg-surface-2 text-muted">
                 {t}
@@ -176,6 +178,17 @@ function HymnCard({
               {chords ? "Chords on" : "Chords off"}
             </Button>
           </div>
+
+          {chords && hymn.progression && (
+            <div className="mt-4 rounded-xl bg-bg px-3 pb-2 pt-1">
+              <p className="text-2xs uppercase tracking-caps text-subtle">Chord progression</p>
+              <Lyrics
+                lines={[hymn.progression.split(/\s*-\s*/).map((c) => `[${c}]\u2003\u2003`).join("")]}
+                showChords
+                shift={shift}
+              />
+            </div>
+          )}
 
           <div className="mt-5 space-y-5">
             {hymn.verses.map((v, i) => (
