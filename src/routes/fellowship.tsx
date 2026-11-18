@@ -6,13 +6,8 @@ import { PrayerSheet } from "@/components/overlays";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  ANNOUNCEMENTS,
-  EVENTS,
-  HUMOR,
-  RIDDLES,
-  type Riddle,
-} from "@/lib/content";
+import type { Joke, Riddle } from "@/lib/feed";
+import { useContent } from "@/lib/feed/use-content";
 import { useAppStore } from "@/lib/store";
 import { normalizeGuess } from "@/lib/utils";
 
@@ -26,6 +21,9 @@ function Fellowship() {
   const amen = useAppStore((s) => s.amen);
   const [prayerOpen, setPrayerOpen] = useState(false);
   const [joke, setJoke] = useState(false);
+  const campusId = useAppStore((s) => s.campusId);
+  const { riddles, jokes, announcements, events } = useContent(campusId);
+  const humor = jokeOfTheWeek(jokes);
 
   return (
     <div className="stagger-in mx-auto max-w-3xl space-y-6">
@@ -49,25 +47,28 @@ function Fellowship() {
           Daily biblical riddles
         </h2>
         <ul className="mt-3 space-y-2">
-          {RIDDLES.map((r) => (
+          {riddles.map((r) => (
             <RiddleCard key={r.id} riddle={r} />
           ))}
         </ul>
       </section>
 
-      <section className="rounded-3xl bg-surface p-5 shadow-card">
-        <p className="text-xs font-medium uppercase tracking-caps text-muted">
-          Christian humour of the week
-        </p>
-        <p className="mt-3 font-medium">Q: {HUMOR.q}</p>
-        {joke ? (
-          <p className="mt-2 font-display text-xl italic text-primary">{HUMOR.a}</p>
-        ) : (
-          <Button className="mt-4" variant="soft" onClick={() => setJoke(true)}>
-            Reveal the punchline
-          </Button>
-        )}
-      </section>
+{humor && (
+        <section className="rounded-3xl bg-surface p-5 shadow-card">
+          <p className="text-xs font-medium uppercase tracking-caps text-muted">
+            Christian humour of the week
+          </p>
+          <p className="mt-3 font-medium">{humor.answer ? `Q: ${humor.question}` : humor.question}</p>
+          {humor.answer &&
+            (joke ? (
+              <p className="mt-2 font-display text-xl italic text-primary">{humor.answer}</p>
+            ) : (
+              <Button className="mt-4" variant="soft" onClick={() => setJoke(true)}>
+                Reveal the punchline
+              </Button>
+            ))}
+        </section>
+      )}
 
       <section>
         <div className="mb-3 flex items-center gap-2">
@@ -77,7 +78,12 @@ function Fellowship() {
           </h2>
         </div>
         <ul className="space-y-2">
-          {ANNOUNCEMENTS.map((a) => (
+          {announcements.length === 0 && (
+            <li className="rounded-2xl bg-surface px-4 py-3.5 text-sm text-muted shadow-card">
+              No announcements right now.
+            </li>
+          )}
+          {announcements.map((a) => (
             <li key={a.id} className="rounded-2xl bg-surface px-4 py-3.5 shadow-card">
               <p className="font-medium">{a.title}</p>
               <p className="mt-1 text-sm text-muted">{a.body}</p>
@@ -94,7 +100,12 @@ function Fellowship() {
           </h2>
         </div>
         <ul className="grid gap-2 sm:grid-cols-2">
-          {EVENTS.map((e) => (
+          {events.length === 0 && (
+            <li className="rounded-2xl bg-surface px-4 py-3.5 text-sm text-muted shadow-card">
+              Upcoming gatherings will be listed here.
+            </li>
+          )}
+          {events.map((e) => (
             <li key={e.id} className="rounded-2xl bg-surface px-4 py-3.5 shadow-card">
               <p className="font-medium">{e.title}</p>
               <p className="mt-0.5 text-sm text-muted">
@@ -189,7 +200,6 @@ function RiddleCard({ riddle }: { riddle: Riddle }) {
             <Check className="mr-1.5 inline size-3.5 -translate-y-px" />
           )}
           {riddle.reveal}
-          <span className="ml-1 text-subtle">({riddle.verse})</span>
         </p>
       ) : (
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
@@ -217,4 +227,14 @@ function RiddleCard({ riddle }: { riddle: Riddle }) {
       )}
     </li>
   );
+}
+
+/** Splits "Question? Punchline" and picks one joke per calendar week. */
+function jokeOfTheWeek(jokes: Joke[], now = new Date()) {
+  if (!jokes.length) return null;
+  const week = Math.floor(now.getTime() / (7 * 24 * 60 * 60 * 1000));
+  const text = jokes[week % jokes.length].text;
+  const i = text.indexOf("?");
+  if (i === -1 || i === text.length - 1) return { question: text, answer: "" };
+  return { question: text.slice(0, i + 1), answer: text.slice(i + 1).trim() };
 }

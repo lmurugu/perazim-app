@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Video, Music2, Users, Zap } from "lucide-react";
-import { CAMPUSES } from "@/lib/content";
+import { useContent } from "@/lib/feed/use-content";
 import { useAppStore } from "@/lib/store";
 import { cn, levelFromXp } from "@/lib/utils";
 import { Mark } from "./mark";
@@ -34,7 +34,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const xp = useAppStore((s) => s.xp);
   const campusId = useAppStore((s) => s.campusId);
-  const campus = CAMPUSES.find((c) => c.id === campusId) ?? CAMPUSES[0];
+  const { campuses } = useContent();
+  const campus = campuses.find((c) => c.id === campusId) ?? campuses[0];
   const [campusOpen, setCampusOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
 
@@ -82,8 +83,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               className="press min-h-11 min-w-0 flex-1 rounded-full bg-surface px-4 text-left text-sm text-fg shadow-card"
             >
               <span className="block truncate">
-                {campus.name}
-                <span className="text-muted"> · {campus.city}</span>
+                {campus ? (
+                  <>
+                    {campus.name}
+                    <span className="text-muted"> · {campus.area}</span>
+                  </>
+                ) : (
+                  "Choose a campus"
+                )}
               </span>
             </button>
             <button

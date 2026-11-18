@@ -51,7 +51,7 @@ type Actions = {
 
 const initial: State = {
   name: "Disciple",
-  campusId: "embu",
+  campusId: "campus_embu",
   xp: 450,
   streak: 7,
   lastActiveDate: todayKey(),

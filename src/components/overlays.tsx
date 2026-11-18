@@ -1,12 +1,8 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Check, Flame, HandHeart, MapPin, Zap } from "lucide-react";
-import {
-  CAMPUSES,
-  GIVE_FUNDS,
-  GIVE_PRESETS,
-  VERSE,
-} from "@/lib/content";
+import { GIVE_FUNDS, GIVE_PRESETS, VERSE } from "@/lib/content";
+import { useContent } from "@/lib/feed/use-content";
 import { useAppStore } from "@/lib/store";
 import { formatKes, levelFromXp, todayKey, xpIntoLevel } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -24,6 +20,7 @@ export function CampusSheet({
 }) {
   const campusId = useAppStore((s) => s.campusId);
   const setCampus = useAppStore((s) => s.setCampus);
+  const { campuses } = useContent();
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -35,7 +32,7 @@ export function CampusSheet({
           Gatherings, sermons, and events follow the house you pick.
         </SheetDescription>
         <ul className="mt-5 space-y-2">
-          {CAMPUSES.map((c) => {
+          {campuses.map((c) => {
             const active = c.id === campusId;
             return (
               <li key={c.id}>
@@ -54,13 +51,12 @@ export function CampusSheet({
                   <span className="min-w-0 flex-1">
                     <span className="block font-medium">
                       {c.name}
-                      <span className="text-muted"> · {c.city}</span>
+                      <span className="text-muted"> · {c.area}</span>
                     </span>
                     <span className="mt-0.5 block text-sm text-muted">
                       {c.gathering}
                     </span>
-                    <span className="block text-xs text-subtle">{c.address}</span>
-                  </span>
+                                      </span>
                   {active && <Check className="size-4 text-primary" />}
                 </button>
               </li>
